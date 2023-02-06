@@ -7,8 +7,8 @@ class AnswerButton extends StatefulWidget {
       {super.key,
       required this.text,
       required this.isCorrectAnswer,
-      required this.nextQuestion});
-  final Function nextQuestion;
+      this.nextQuestion});
+  final Function? nextQuestion;
   final String text;
   final bool isCorrectAnswer;
   final ButtonStyle correctButtonStyle = OutlinedButton.styleFrom(
@@ -31,8 +31,7 @@ class _AnswerButtonState extends State<AnswerButton> {
           setState(() {
             if (widget.isCorrectAnswer) {
               currentButtonStyle = widget.correctButtonStyle;
-              print('correct');
-              widget.nextQuestion();
+              widget.nextQuestion!();
             } else {
               currentButtonStyle = widget.incorrectButtonStyle;
             }
