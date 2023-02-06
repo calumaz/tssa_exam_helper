@@ -1,6 +1,6 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:tssa_exam_helper/models/quiz_bank.dart';
 import '../widgets/answer_button.dart';
 import '../widgets/stopwatch.dart';
@@ -32,11 +32,16 @@ class _QuizPageContentState extends State<QuizPageContent> {
   int numberCurrentQuestion = 1;
   int numberCorrent = 0;
   int numberIncorrect = 0;
+  bool continueButtonIsVisible = false;
+  late List<AnswerButton> currentAnswerButtons = widget.quizBank.answerButtons;
+  var rng = Random();
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // top row
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
           child: Row(
@@ -82,6 +87,7 @@ class _QuizPageContentState extends State<QuizPageContent> {
             ],
           ),
         ),
+        // card for question text
         Card(
             child: SizedBox(
           height: 160,
@@ -93,22 +99,12 @@ class _QuizPageContentState extends State<QuizPageContent> {
             ),
           ),
         )),
+        // space for answer buttons
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 3),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AnswerButton(
-                  text: widget.quizBank.quizQuestions[0].correctAnswer),
-              AnswerButton(
-                  text: widget.quizBank.quizQuestions[0].wrongAnswers[0]),
-              AnswerButton(
-                  text: widget.quizBank.quizQuestions[0].wrongAnswers[1]),
-              AnswerButton(
-                  text: widget.quizBank.quizQuestions[0].wrongAnswers[2]),
-              AnswerButton(
-                  text: widget.quizBank.quizQuestions[0].wrongAnswers[3]),
-            ],
+            children: currentAnswerButtons,
           ),
         )
       ],
