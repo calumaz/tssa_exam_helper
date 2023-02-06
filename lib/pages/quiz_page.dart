@@ -36,6 +36,12 @@ class _QuizPageContentState extends State<QuizPageContent> {
   late List<AnswerButton> currentAnswerButtons = widget.quizBank.answerButtons;
   var rng = Random();
 
+  void updateAnswerButtons() {
+    setState(() {
+      currentAnswerButtons = widget.quizBank.generateAnswerButtons();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
