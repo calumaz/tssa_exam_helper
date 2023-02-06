@@ -29,17 +29,53 @@ class QuizPageContent extends StatefulWidget {
 }
 
 class _QuizPageContentState extends State<QuizPageContent> {
-  int numberCurrentQuestion = 1;
+  int currentQuestionIndex = 0;
   int numberCorrent = 0;
   int numberIncorrect = 0;
   bool continueButtonIsVisible = false;
-  late List<AnswerButton> currentAnswerButtons = widget.quizBank.answerButtons;
+  late List<AnswerButton> currentAnswerButtons =
+      GenerateAnswerButtons(widget.quizBank.quizQuestions[0]);
   var rng = Random();
 
-  void updateAnswerButtons() {
+  void nextQuestion() {
     setState(() {
-      currentAnswerButtons = widget.quizBank.generateAnswerButtons();
+      currentQuestionIndex++;
+      currentAnswerButtons = GenerateAnswerButtons(
+          widget.quizBank.quizQuestions[currentQuestionIndex]);
     });
+  }
+
+  // pass in the current question, recieve a shuffled list of buttons.
+  List<AnswerButton> GenerateAnswerButtons(Question question) {
+    int numberOfAnswers = question.wrongAnswers.length;
+    int staggerAmount = rng.nextInt(numberOfAnswers + 1);
+    List<AnswerButton> results = [];
+
+    question.wrongAnswers.shuffle();
+
+    for (int i = 0; i < staggerAmount; i++) {
+      results.add(AnswerButton(
+        text: question.wrongAnswers[i],
+        isCorrectAnswer: false,
+      ));
+    }
+    // insert correct answer
+    results.add(AnswerButton(
+      text: question.correctAnswer,
+      isCorrectAnswer: true,
+      nextQuestion: () {
+        nextQuestion();
+      },
+    ));
+    for (int i = staggerAmount; i < numberOfAnswers; i++) {
+      results.add(AnswerButton(
+        text: question.wrongAnswers[i],
+        isCorrectAnswer: false,
+      ));
+    }
+
+    // return list of buttons
+    return results;
   }
 
   @override
@@ -69,7 +105,7 @@ class _QuizPageContentState extends State<QuizPageContent> {
                   Row(
                     children: [
                       Text(
-                        '$numberCurrentQuestion/20',
+                        '${currentQuestionIndex + 1}/20',
                         style: const TextStyle(color: Colors.grey),
                       ),
                       const SizedBox(
@@ -100,7 +136,7 @@ class _QuizPageContentState extends State<QuizPageContent> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              widget.quizBank.quizQuestions[0].question,
+              widget.quizBank.quizQuestions[currentQuestionIndex].question,
               style: const TextStyle(fontSize: 20, fontFamily: 'Rajdhani'),
             ),
           ),
