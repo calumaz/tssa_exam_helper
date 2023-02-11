@@ -33,7 +33,7 @@ class HomePage extends StatelessWidget {
             children: [
               ExamSelectionButton('4A Practice Exam'),
               ExamSelectionButton('4B Practice Exam'),
-              ExamSelectionButton('Placeholder')
+              ExamSelectionButton('Placeholder', isEnabled: false)
             ],
           ),
         ],

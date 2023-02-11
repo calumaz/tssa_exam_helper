@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:tssa_exam_helper/models/quiz_bank.dart';
+import 'package:tssa_exam_helper/widgets/question_page_view.dart';
 import '../widgets/answer_button.dart';
 import '../widgets/stopwatch.dart';
 
@@ -21,11 +22,24 @@ class QuizPage extends StatelessWidget {
 }
 
 class QuizPageContent extends StatefulWidget {
+  QuizPageContent({super.key, required this.quizBank}) {
+    questionPageViews = GenerateQuestionPageViews();
+  }
+
   QuizBank quizBank;
-  QuizPageContent({super.key, required this.quizBank});
+  late List<QuestionPageView> questionPageViews;
 
   @override
   State<QuizPageContent> createState() => _QuizPageContentState();
+
+  List<QuestionPageView> GenerateQuestionPageViews() {
+    List<QuestionPageView> results = [];
+    for (Question question in quizBank.quizQuestions) {
+      results.add(QuestionPageView(question: question));
+    }
+
+    return results;
+  }
 }
 
 class _QuizPageContentState extends State<QuizPageContent> {
@@ -33,50 +47,8 @@ class _QuizPageContentState extends State<QuizPageContent> {
   int numberCorrent = 0;
   int numberIncorrect = 0;
   bool continueButtonIsVisible = false;
-  late List<AnswerButton> currentAnswerButtons =
-      GenerateAnswerButtons(widget.quizBank.quizQuestions[0]);
+  final PageController pageController = PageController();
   var rng = Random();
-
-  void nextQuestion() {
-    setState(() {
-      currentQuestionIndex++;
-      currentAnswerButtons = GenerateAnswerButtons(
-          widget.quizBank.quizQuestions[currentQuestionIndex]);
-    });
-  }
-
-  // pass in the current question, recieve a shuffled list of buttons.
-  List<AnswerButton> GenerateAnswerButtons(Question question) {
-    int numberOfAnswers = question.wrongAnswers.length;
-    int staggerAmount = rng.nextInt(numberOfAnswers + 1);
-    List<AnswerButton> results = [];
-
-    question.wrongAnswers.shuffle();
-
-    for (int i = 0; i < staggerAmount; i++) {
-      results.add(AnswerButton(
-        text: question.wrongAnswers[i],
-        isCorrectAnswer: false,
-      ));
-    }
-    // insert correct answer
-    results.add(AnswerButton(
-      text: question.correctAnswer,
-      isCorrectAnswer: true,
-      nextQuestion: () {
-        nextQuestion();
-      },
-    ));
-    for (int i = staggerAmount; i < numberOfAnswers; i++) {
-      results.add(AnswerButton(
-        text: question.wrongAnswers[i],
-        isCorrectAnswer: false,
-      ));
-    }
-
-    // return list of buttons
-    return results;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,25 +101,17 @@ class _QuizPageContentState extends State<QuizPageContent> {
             ],
           ),
         ),
-        // card for question text
-        Card(
-            child: SizedBox(
-          height: 160,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              widget.quizBank.quizQuestions[currentQuestionIndex].question,
-              style: const TextStyle(fontSize: 20, fontFamily: 'Rajdhani'),
-            ),
+
+        // page content
+        Expanded(
+          child: PageView(
+            children: widget.questionPageViews,
           ),
-        )),
-        // space for answer buttons
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 3),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: currentAnswerButtons,
-          ),
+        ),
+        ElevatedButton(
+          onPressed: () {},
+          child: Text('Continue'),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
         )
       ],
     );

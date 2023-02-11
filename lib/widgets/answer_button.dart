@@ -6,36 +6,66 @@ class AnswerButton extends StatefulWidget {
       {super.key,
       required this.text,
       required this.isCorrectAnswer,
-      this.nextQuestion});
-  final Function? nextQuestion;
+      required this.revealCorrectAnswer});
+
   final String text;
   final bool isCorrectAnswer;
-  final ButtonStyle correctButtonStyle = OutlinedButton.styleFrom(
-      side: BorderSide(width: 1.0, color: Colors.green));
-  final ButtonStyle incorrectButtonStyle =
-      OutlinedButton.styleFrom(side: BorderSide(width: 1.0, color: Colors.red));
+  final Function revealCorrectAnswer;
+  late Icon answerIcon = isCorrectAnswer
+      ? Icon(
+          Icons.check,
+          color: Colors.green,
+        )
+      : Icon(
+          Icons.close,
+          color: Colors.red,
+        );
 
   @override
   State<AnswerButton> createState() => _AnswerButtonState();
 }
 
 class _AnswerButtonState extends State<AnswerButton> {
-  ButtonStyle currentButtonStyle = OutlinedButton.styleFrom();
+  RoundedRectangleBorder? cardShape;
+  bool iconIsVisible = false;
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
-        style: currentButtonStyle,
-        onPressed: () {
-          setState(() {
-            if (widget.isCorrectAnswer) {
-              currentButtonStyle = widget.correctButtonStyle;
-              widget.nextQuestion!();
-            } else {
-              currentButtonStyle = widget.incorrectButtonStyle;
-            }
-          });
-        },
-        child: Text(widget.text));
+    return GestureDetector(
+      onTap: () {
+        print('tapped');
+        setState(() {
+          if (widget.isCorrectAnswer) {
+            cardShape = RoundedRectangleBorder(
+                side: BorderSide(color: Colors.green.withOpacity(.8)));
+            iconIsVisible = true;
+          } else {
+            cardShape = RoundedRectangleBorder(
+                side: BorderSide(color: Colors.red.withOpacity(.8)));
+            iconIsVisible = true;
+            widget.revealCorrectAnswer();
+          }
+        });
+      },
+      child: Card(
+          shape: cardShape,
+          child: SizedBox(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.text,
+                    style: const TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  Visibility(visible: iconIsVisible, child: widget.answerIcon)
+                ],
+              ),
+            ),
+          )),
+    );
   }
 }
